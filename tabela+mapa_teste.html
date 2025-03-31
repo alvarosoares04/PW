@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela + Mapa</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .custom-popup {
+            width: 300px; /* Largura do pop-up */
+        }
+        .sidebar {
+            width: 80px;
+            background: white;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+        }
+        .sidebar .icon {
+            font-size: 24px;
+            color: #6c757d;
+            margin: 15px 0;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .sidebar .icon:hover {
+            background: #d4edda;
+            color: #28a745;
+        }
+        .sidebar .active {
+            background: #28a745;
+            color: white;
+        }
+        .content {
+            margin-left: 100px;
+            padding: 30px;
+        }
+
+        .filter-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra lateral -->
+    <div class="sidebar">
+        <a href="PaginaPrincipal.html" class="icon-link"><i class="ph-bold ph-house icon"></i></a>
+        <a href="tabela+mapa_teste.html" class="icon-link"><i class="ph-bold ph-table icon"></i></a>
+        <a href="alterar.html" class="icon-link"><i class="ph-bold ph-user icon"></i></a>
+        <a href="registoocorrencia.html" class="icon-link"><i class="ph-bold ph-plus icon"></i></a>
+        <a href="definicoes.html" class="icon-link"><i class="ph-bold ph-gear icon"></i></a>
+    </div>
+
+    <div class="filter-container">
+        <select id="filter-select" class="form-select" onchange="filtrarOcorrencias()">
+            <option value="todos">Todos</option>
+            <option value="grafitis">Grafitis</option>
+            <option value="lixo">Lixo</option>
+        </select>
+    </div>
+
+    <div class="content">
+        <h2>Mapa de Ocorrências</h2>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Inicializar o mapa centrado em Portugal
+        var map = L.map('map').setView([39.5, -8.0], 6);
+
+        // Adicionar camada do OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Criar dois ícones personalizados
+        var binIcon = L.icon({
+            iconUrl: 'bin.png', // Caminho para o ícone bin
+            iconSize: [32, 32], // Tamanho do ícone [largura, altura]
+            iconAnchor: [16, 32], // Ponto de ancoragem do ícone [x, y]
+            popupAnchor: [0, -32] // Ponto de ancoragem do pop-up [x, y]
+        });
+
+        var sprayPaintIcon = L.icon({
+            iconUrl: 'spray-paint.png', // Caminho para o ícone spray-paint
+            iconSize: [32, 32], // Tamanho do ícone [largura, altura]
+            iconAnchor: [16, 32], // Ponto de ancoragem do ícone [x, y]
+            popupAnchor: [0, -32] // Ponto de ancoragem do pop-up [x, y]
+        });
+
+        // Lista de ocorrências com informações, imagens, ícones e contadores de votos
+        var pontos = [
+            {
+                lat: 38.7169,
+                lon: -9.1399,
+                descricao: "Ocorrência 420",
+                imagens: [
+                    "images.jpg",
+                    "lixo_2.jpg"
+                ],
+                info: "Lixo. Gravidade: 2.",
+                icon: binIcon,
+                tipo: "lixo", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-29 14:30", // Data e hora da ocorrência
+                rua: "Rua Augusta",
+                codigoPostal: "1100-048"
+            },
+            {
+                lat: 41.1579,
+                lon: -8.6291,
+                descricao: "Ocorrência 422",
+                imagens: [
+                    "images (1).jpg",
+                    "grafiti-art.jpg"
+                ],
+                info: "Grafiti. Gravidade: 3.",
+                icon: sprayPaintIcon,
+                tipo: "grafitis", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-28 10:15",
+                rua: "Avenida dos Aliados",
+                codigoPostal: "4000-064"
+            },
+            {
+                lat: 40.2033,
+                lon: -8.4103,
+                descricao: "Ocorrência 426",
+                imagens: [
+                    "vandalismo.jpg",
+                    "images (1).jpg"
+                ],
+                info: "Grafiti. Gravidade: 1.",
+                icon: sprayPaintIcon,
+                tipo: "grafitis", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-27 16:45",
+                rua: "Rua Ferreira Borges",
+                codigoPostal: "3000-175"
+            },
+            {
+                lat: 37.0179,
+                lon: -7.9308,
+                descricao: "Ocorrência 430",
+                imagens: [
+                    "images.jpg",
+                    "lixo_2.jpg"
+                ],
+                info: "Lixo acumulado em área urbana. Gravidade: 4.",
+                icon: binIcon,
+                tipo: "lixo", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-26 09:00",
+                rua: "Rua de Santo António",
+                codigoPostal: "8000-283"
+            },
+            {
+                lat: 39.7445,
+                lon: -8.8071,
+                descricao: "Ocorrência 435",
+                imagens: [
+                    "grafiti-art.jpg",
+                    "vandalismo.jpg"
+                ],
+                info: "Grafiti em monumento histórico. Gravidade: 5.",
+                icon: sprayPaintIcon,
+                tipo: "grafitis", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-25 12:20",
+                rua: "Praça do Mosteiro",
+                codigoPostal: "2495-402"
+            },
+            {
+                lat: 38.5244,
+                lon: -8.8882,
+                descricao: "Ocorrência 440",
+                imagens: [
+                    "images.jpg",
+                    "lixo_2.jpg"
+                ],
+                info: "Lixo em parque público. Gravidade: 3.",
+                icon: binIcon,
+                tipo: "lixo", // Tipo da ocorrência
+                votosConfirmar: 0,
+                votosNegar: 0,
+                dataHora: "2025-03-24 18:10",
+                rua: "Parque da Liberdade",
+                codigoPostal: "2900-501"
+            }
+        ];
+
+        // Função para criar o conteúdo do pop-up com Bootstrap
+        function criarPopup(ponto, index) {
+            return `
+                <div class="custom-popup">
+                    <h5>${ponto.descricao}</h5>
+                    <p>${ponto.info}</p>
+                    <p><strong>Data e Hora:</strong> ${ponto.dataHora}</p>
+                    <p><strong>Rua:</strong> ${ponto.rua}</p>
+                    <p><strong>Código Postal:</strong> ${ponto.codigoPostal}</p>
+                    
+                    <!-- Carrossel Bootstrap -->
+                    <div id="carousel-${index}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            ${ponto.imagens.map((img, imgIndex) => `
+                                <div class="carousel-item ${imgIndex === 0 ? 'active' : ''}">
+                                    <img src="${img}" class="d-block w-100" alt="Imagem de ${ponto.descricao}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${index}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-${index}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <!-- Botões de votação -->
+                    <div class="mt-3 text-center">
+                        <button class="btn btn-success btn-confirm" onclick="confirmarOcorrencia(${index})">
+                            <i class="ph-bold ph-check"></i> <span id="votos-confirmar-${index}">${ponto.votosConfirmar}</span>
+                        </button>
+                        <button class="btn btn-danger btn-reject" onclick="negarOcorrencia(${index})">
+                            <i class="ph-bold ph-x"></i> <span id="votos-negar-${index}">${ponto.votosNegar}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função para confirmar a ocorrência
+        function confirmarOcorrencia(index) {
+            pontos[index].votosConfirmar++; // Incrementar o contador de votos para confirmar
+            document.getElementById(`votos-confirmar-${index}`).textContent = pontos[index].votosConfirmar; // Atualizar o número no botão
+            console.log(`Ocorrência "${pontos[index].descricao}" confirmada. Total de confirmações: ${pontos[index].votosConfirmar}`);
+        }
+
+        // Função para negar a ocorrência
+        function negarOcorrencia(index) {
+            pontos[index].votosNegar++; // Incrementar o contador de votos para negar
+            document.getElementById(`votos-negar-${index}`).textContent = pontos[index].votosNegar; // Atualizar o número no botão
+            console.log(`Ocorrência "${pontos[index].descricao}" negada. Total de negações: ${pontos[index].votosNegar}`);
+        }
+
+            // Função para filtrar as ocorrências
+        function filtrarOcorrencias() {
+            var tipoSelecionado = document.getElementById("filter-select").value;
+
+        // Remover todos os marcadores do mapa
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+
+        // Adicionar novamente os marcadores que correspondem ao filtro
+        pontos.forEach((ponto, index) => {
+            if (tipoSelecionado === "todos" || ponto.tipo === tipoSelecionado) {
+                L.marker([ponto.lat, ponto.lon], { icon: ponto.icon })
+                    .addTo(map)
+                    .bindPopup(criarPopup(ponto, index));
+            }
+        });
+    }
+        // Adicionar marcadores no mapa com ícones personalizados e pop-ups
+        pontos.forEach((ponto, index) => {
+            L.marker([ponto.lat, ponto.lon], { icon: ponto.icon })
+                .addTo(map)
+                .bindPopup(criarPopup(ponto, index));
+        });
+    </script>
+</body>
+</html>
