@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EyesEverywhere</title>
+
+    <!-- Google Identity API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles -->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #3C8B2F !important;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+
+        .logo {
+            font-size: 28px;
+            color: #3C8B2F;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+
+        <div class="login-container">
+            <div class="logo">
+                Bem-Vindo ao EyesEverywhere
+            </div>
+
+           <!-- Google Sign-In -->
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+            <div id="g_id_onload"
+                data-client_id="974088710718-o6lvtp1j92mb7jhbmaule1qk4rjhr128.apps.googleusercontent.com"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-auto_prompt="false"
+                data-callback="handleCredentialResponse">
+            </div>
+
+            <div class="g_id_signin" 
+                data-type="standard" 
+                data-shape="rectangular" 
+                data-theme="outline" 
+                data-text="sign_in_with"
+                data-size="large">
+            </div>
+
+
+            <div id="user-info" class="mt-3 text-center" style="display: none;">
+                <p id="user-name"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function handleCredentialResponse(response) {
+            const data = jwt_decode(response.credential);
+            console.log("Dados decodificados:", data); // Verifica o conteúdo do token
+            
+            // Exibe as informações do usuário
+            document.getElementById("user-info").style.display = "block";
+            document.getElementById("user-name").innerText = `Bem-vindo, ${data.name}`;
+            
+            // Armazena os dados do usuário no Session Storage
+            sessionStorage.setItem("usuario", JSON.stringify({
+                name: data.name,
+                email: data.email
+            }));
+    
+            // Redireciona para outra página após o login
+            setTimeout(() => {
+                window.location.href = "tabela+mapa_teste.html"; // Redireciona para o painel principal
+            }, 2000);
+        }
+    
+        // Carrega o script JWT decode
+        function loadScript(src, callback) {
+            let script = document.createElement("script");
+            script.src = src;
+            script.onload = callback;
+            document.head.appendChild(script);
+        }
+        loadScript("https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js", function () {
+            console.log("JWT Decode carregado");
+        });
+    </script>
+
+</body>
+
+</html>
