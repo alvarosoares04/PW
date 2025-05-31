@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Ocorrências</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+        }
+        /* Estilo da barra lateral */
+        .sidebar {
+            width: 80px;
+            background: white;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+        }
+        .sidebar .icon {
+            font-size: 24px;
+            color: #6c757d;
+            margin: 15px 0;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .icon-link {
+            text-decoration: none; /* Remove o sublinhado */
+            color: inherit; /* Mantém a cor herdada */
+        }
+        .sidebar .icon:hover {
+            background: #d4edda;
+            color: #28a745;
+        }
+        /* O ícone ativo agora é o "Home" */
+        .sidebar .active {
+            background: #28a745;
+            color: white;
+        }
+        .content {
+            flex-grow: 1;
+            margin-left: 100px;
+            padding: 30px;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn-confirm {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            font-size: 12px;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+        }
+        .btn-confirm:hover {
+            background-color: #218838;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 50%;
+            font-size: 12px;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-reject:hover {
+            background-color: #c82333;
+        }
+        .carousel-inner img {
+            width: 100%; /* Defina a largura como 100% para ajustar ao contêiner */
+            height: 150px; /* Defina a altura fixa para as imagens */
+            object-fit: cover; /* Ajusta a imagem para cobrir a área definida */
+            border-radius: 10px; /* Bordas levemente arredondadas */
+        }
+        .table td:nth-child(6) {
+            width: 200px; /* Defina a largura fixa para a coluna das imagens */
+        }
+        .no-results {
+            display: none;
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table th {
+            font-weight: bold;
+            color: #6c757d;
+        }
+        .filter-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .form-select {
+            width: 200px;
+            border-radius: 20px;
+        }
+        .d-flex {
+            justify-content: center;
+        }
+        .carousel-inner img {
+            width: auto; /* Mantém a largura ajustada ao contêiner */
+            height: 400px; /* Define uma altura menor */
+            object-fit: cover; /* Ajusta a imagem para cobrir a área definida */
+            border-radius: 10px; /* Bordas levemente arredondadas */
+        }
+        .btn-info i {
+            color: white; /* Define a cor do ícone como branco */
+        }
+        .btn-info {
+            background-color: #17a2b8; /* Cor de fundo do botão */
+            border-color: #17a2b8; /* Cor da borda */
+        }
+
+        .btn-info:hover {
+            background-color: #138496; /* Cor de fundo ao passar o mouse */
+            border-color: #138496; /* Cor da borda ao passar o mouse */
+        }
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            margin-bottom: 20px;
+        }
+        /* Mini menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .mini-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            width: 150px;
+        }
+
+        .mini-menu a {
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 14px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .mini-menu a:hover {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .user-menu:hover .mini-menu {
+            display: block;
+        }
+
+        .pagination .page-link {
+            color: #28a745;
+            border-color: #28a745;
+        }
+        .pagination .page-link:hover,
+        .pagination .page-item.active .page-link {
+            background-color: #28a745;
+            color: #fff;
+            border-color: #28a745;
+        }
+
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        top: auto;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1100;
+    }
+
+    .sidebar .icon {
+        margin: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        padding-bottom: 80px; /* Espaço para a barra inferior */
+    }
+
+    .user-menu {
+        position: static;
+    }
+
+    .mini-menu {
+        position: absolute;
+        bottom: 60px;
+        top: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .user-menu:hover .mini-menu {
+        display: block;
+    }
+}
+/* ...existing code... */
+    </style>
+</head>
+<body>
+
+    <!-- Barra lateral -->
+    <div class="sidebar">
+        <a href="PaginaPrincipalLogin.html" class="icon-link"><i class="ph-bold ph-house icon"></i></a>
+        <a href="tabela+mapa_teste.html" class="icon-link"><i class="ph-bold ph-map-trifold icon"></i></a>
+        <a href="registoocorrencia.html" class="icon-link"><i class="ph-bold ph-scroll icon"></i></a>
+        <a href="tabela.html" class="icon-link"><i class="ph-bold ph-table icon active"></i></a>
+        <div class="icon-link user-menu">
+            <i class="ph-bold ph-user-circle icon"></i>
+            <div class="mini-menu">
+                <a href="alterar.html">Ver Perfil</a>
+                <a href="configuracoes.html">Configurações</a>
+                <a href="PaginaPrincipal.html">Sair</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Define a classe 'active' no ícone correspondente à página atual
+        const currentPath = window.location.pathname.split('/').pop();
+        const links = document.querySelectorAll('.icon-link');
+        links.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.querySelector('.icon').classList.add('active');
+            }
+        });
+    </script>
+
+<div class="content">
+        <!-- Tabela do usuário -->
+        <h3 class="mt-5">Minhas Ocorrências</h3>
+        <div class="table-container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Gravidade</th>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Localização</th>
+                        <th>Estado</th>
+                        <th>Mais</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyUsuário">
+                    <!-- Linhas da tabela serão geradas dinamicamente -->
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination justify-content-center" id="paginationUsuario"></ul>
+            </nav>
+        </div>
+        <!-- ...existing code... -->
+<h3 class="mb-4">Tabela de Ocorrências</h3>
+
+<!-- Botão para abrir o painel de filtros -->
+<button class="btn btn-outline-success mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFiltros" aria-controls="offcanvasFiltros">
+    <i class="ph-bold ph-funnel"></i> Filtros
+</button>
+
+<!-- Offcanvas Bootstrap para filtros -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasFiltros" aria-labelledby="offcanvasFiltrosLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasFiltrosLabel">Filtros</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="mb-3">
+        <label class="form-label">Filtrar por Tipo:</label>
+        <div id="typeCheckboxes" class="d-flex gap-2 flex-wrap">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Grafiti" id="checkGrafiti" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrafiti"><img src="Imagens/spray-paint.png" alt="Lixo" title="Lixo" width="20"> Grafiti</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Lixo" id="checkLixo" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkLixo"><img src="Imagens/bin.png" alt="Lixo" title="Lixo" width="20"> Lixo</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Vandalismo" id="checkVandalismo" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkVandalismo"><img src="Imagens/vandalism.png" alt="Vandalismo" title="Vandalismo" width="20"> Vandalismo</label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Filtrar por Gravidade:</label>
+        <div id="gravidadeCheckboxes" class="d-flex gap-2 flex-wrap">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="1" id="checkGrav1" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrav1">1</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="2" id="checkGrav2" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrav2">2</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="3" id="checkGrav3" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrav3">3</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="4" id="checkGrav4" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrav4">4</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="5" id="checkGrav5" onchange="filterTable()" checked>
+                <label class="form-check-label" for="checkGrav5">5</label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Filtrar por Estado:</label>
+        <div id="stateCheckboxes" class="d-flex gap-2 flex-wrap">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Registada" id="checkRegistada" onchange="filterTableByState()" checked>
+                <label class="form-check-label" for="checkRegistada">Registada <img src="Imagens/notes.png" alt="Registada" title="Registada" width="20"></label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Em Tratamento" id="checkEmTratamento" onchange="filterTableByState()" checked>
+                <label class="form-check-label" for="checkEmTratamento">Em Tratamento <img src="Imagens/clock.png" alt="Em Tratamento" title="Em Tratamento" width="20"></label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="Concluída" id="checkConcluida" onchange="filterTableByState()">
+                <label class="form-check-label" for="checkConcluida">Concluída <img src="Imagens/check.png" alt="Concluída" title="Concluída" width="20"></label>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- ...continua o resto do teu código (tabela, scripts, etc)... -->
+        <div class="table-container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Gravidade</th>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Localização</th>
+                        <th>Estado</th>
+                        <th>Mais</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Linhas da tabela serão geradas dinamicamente -->
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination justify-content-center" id="paginationGeral"></ul>
+            </nav>
+            <div id="noResults" class="no-results">Não foram encontrados resultados</div>
+        </div>
+    </div>
+
+    <!-- Modal Dinâmico -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">Detalhes da Ocorrência</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modalDescription"></p>
+                    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="carouselImages">
+                            <!-- Imagens serão adicionadas dinamicamente -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PAGE_SIZE = 6;
+        let currentPageUsuario = 1;
+        let currentPageGeral = 1;
+        // Recuperar ocorrências do LocalStorage
+        const ocorrencias = JSON.parse(localStorage.getItem("ocorrencias")) || [];
+
+        // Log para verificar se as ocorrências foram carregadas corretamente
+        console.log("Ocorrências carregadas do LocalStorage:", ocorrencias);
+
+        // Verificar se há ocorrências
+        if (ocorrencias.length === 0) {
+            console.warn("Nenhuma ocorrência encontrada no LocalStorage.");
+        } else {
+            console.info(`${ocorrencias.length} ocorrência(s) carregada(s) do LocalStorage.`);
+        }
+
+        // Função para exibir detalhes de uma ocorrência
+        function exibirDetalhes(index) {
+            // Recuperar todas as ocorrências salvas no localStorage
+            const ocorrenciasSalvas = JSON.parse(localStorage.getItem("ocorrencias")) || [];
+
+            // Encontrar a ocorrência correspondente ao índice
+            const ocorrencia = ocorrenciasSalvas.find(o => o.id === ocorrencias[index].id);
+
+            if (!ocorrencia) {
+                console.error("Ocorrência não encontrada.");
+                return;
+            }
+
+            document.getElementById("infoModalLabel").textContent = `Detalhes da Ocorrência: ${ocorrencia.nome}`;
+            document.getElementById("modalDescription").textContent = ocorrencia.descricao;
+
+            const carouselImages = document.getElementById("carouselImages");
+            carouselImages.innerHTML = ""; // Limpa as imagens anteriores
+
+            if (!ocorrencia.anexos || ocorrencia.anexos.length === 0) {
+                carouselImages.innerHTML = `<div class="carousel-item active">
+                    <p class="text-center">Nenhuma imagem disponível.</p>
+                </div>`;
+                return;
+            }
+
+            ocorrencia.anexos.forEach((anexo, idx) => {
+                const div = document.createElement("div");
+                div.className = `carousel-item ${idx === 0 ? "active" : ""}`;
+                div.innerHTML = `<img src="${anexo.data}" class="d-block w-100" alt="${anexo.name}">`;
+                carouselImages.appendChild(div);
+            });
+        }
+
+
+        // Função para filtrar por estado
+        function filterTableByState() {
+            // Obter todos os estados selecionados
+            const checkedStates = Array.from(document.querySelectorAll('#stateCheckboxes .form-check-input:checked'))
+                .map(cb => cb.value.toLowerCase());
+            const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+            const noResults = document.getElementById("noResults");
+            let hasVisibleRows = false;
+
+            for (let i = 0; i < rows.length; i++) {
+                const state = rows[i].getElementsByTagName("td")[5].textContent.toLowerCase();
+                // Se nenhum checkbox está selecionado, mostra tudo
+                if (checkedStates.length === 0 || checkedStates.some(s => state.includes(s))) {
+                    rows[i].style.display = "";
+                    hasVisibleRows = true;
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+
+            noResults.style.display = hasVisibleRows ? "none" : "block";
+        }
+
+        function filterTable() {
+            const checkedStates = Array.from(document.querySelectorAll('#stateCheckboxes .form-check-input:checked')).map(cb => cb.value.toLowerCase());
+            const checkedTypes = Array.from(document.querySelectorAll('#typeCheckboxes .form-check-input:checked')).map(cb => cb.value.toLowerCase());
+            const checkedGravidades = Array.from(document.querySelectorAll('#gravidadeCheckboxes .form-check-input:checked')).map(cb => cb.value);
+
+            const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+            const noResults = document.getElementById("noResults");
+            let hasVisibleRows = false;
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                const gravidade = cells[1].textContent.trim();
+                const tipo = cells[3].textContent.toLowerCase();
+                const estado = cells[5].textContent.toLowerCase();
+
+                const show =
+                    (checkedStates.length === 0 || checkedStates.some(s => estado.includes(s))) &&
+                    (checkedTypes.length === 0 || checkedTypes.some(t => tipo.includes(t))) &&
+                    (checkedGravidades.length === 0 || checkedGravidades.includes(gravidade));
+
+                rows[i].style.display = show ? "" : "none";
+                if (show) hasVisibleRows = true;
+            }
+
+            noResults.style.display = hasVisibleRows ? "none" : "block";
+        }
+
+        // Função para pesquisar na tabela por coluna
+        function searchTableByColumn() {
+            const columnIndex = document.getElementById("columnSelect").value;
+            const input = document.getElementById("searchBar").value.toLowerCase();
+            const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+            const noResults = document.getElementById("noResults");
+            let hasVisibleRows = false;
+
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                if (cells[columnIndex] && cells[columnIndex].textContent.toLowerCase().includes(input)) {
+                    rows[i].style.display = "";
+                    hasVisibleRows = true;
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+
+            noResults.style.display = hasVisibleRows ? "none" : "block";
+        }
+
+        // --- Minhas Ocorrências ---
+        function renderizarTabelaUsuario(page = 1) {
+            const tableBody = document.getElementById("tableBodyUsuário");
+            tableBody.innerHTML = "";
+
+            const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+            const emailCriador = usuario ? usuario.email : null;
+            if (!emailCriador) return;
+
+            const ocorrenciasUsuario = ocorrencias.filter(ocorrencia => ocorrencia.emailCriador === emailCriador);
+
+            // Paginação
+            const totalPages = Math.ceil(ocorrenciasUsuario.length / PAGE_SIZE);
+            const start = (page - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            const pageData = ocorrenciasUsuario.slice(start, end);
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center">Nenhuma ocorrência registrada por você.</td></tr>`;
+            } else {
+                pageData.forEach((ocorrencia, index) => {
+                    // ...o teu código para criar a linha (row.innerHTML = ...)
+                    // Usa o mesmo código que já tens para criar as linhas
+                    // Só muda o index para start + index se precisares do índice global
+                    // ...existing code...
+                    let tipoHtml = "";
+                    if (ocorrencia.tipo.toLowerCase() === "grafiti") {
+                        tipoHtml = `<img src="Imagens/spray-paint.png" alt="Grafiti" title="Grafiti" width="20"> Grafiti`;
+                    } else if (ocorrencia.tipo.toLowerCase() === "lixo") {
+                        tipoHtml = `<img src="Imagens/bin.png" alt="Lixo" title="Lixo" width="20"> Lixo`;
+                    } else if (ocorrencia.tipo.toLowerCase() === "vandalismo") {
+                        tipoHtml = `<img src="Imagens/vandalism.png" alt="Vandalismo" title="Vandalismo" width="20"> Vandalismo`;
+                    }
+                    let estadoHtml = "";
+                    if (ocorrencia.estado.toLowerCase() === "concluída") {
+                        estadoHtml = `<img src="Imagens/check.png" alt="Concluída" title="Concluída" width="20"> Concluída`;
+                    } else if (ocorrencia.estado.toLowerCase() === "registada") {
+                        estadoHtml = `<img src="Imagens/notes.png" alt="Registada" title="Registada" width="20"> Registada`;
+                    } else if (ocorrencia.estado.toLowerCase() === "em tratamento") {
+                        estadoHtml = `<img src="Imagens/clock.png" alt="Em Tratamento" title="Em Tratamento" width="20"> Em Tratamento`;
+                    } else if (ocorrencia.estado.toLowerCase() === "inicial") {
+                        estadoHtml = `<img src="Imagens/play.png" alt="Inicial" title="Inicial" width="20"> Inicial`;
+                    }
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${ocorrencia.id}</td>
+                        <td>${ocorrencia.gravidade}</td>
+                        <td>${ocorrencia.nome}</td>
+                        <td>${tipoHtml}</td>
+                        <td>${ocorrencia.rua}</td>
+                        <td>${estadoHtml}</td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm" onclick="exibirDetalhes(${start + index})" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="ph-bold ph-info icon"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            renderPaginationUsuario(totalPages, page);
+        }
+
+        function renderPaginationUsuario(totalPages, currentPage) {
+            const pagination = document.getElementById("paginationUsuario");
+            pagination.innerHTML = "";
+            if (totalPages <= 1) return;
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item" + (i === currentPage ? " active" : "");
+                li.innerHTML = `<button class="page-link" onclick="goToPageUsuario(${i})">${i}</button>`;
+                pagination.appendChild(li);
+            }
+        }
+        function goToPageUsuario(page) {
+            currentPageUsuario = page;
+            renderizarTabelaUsuario(page);
+        }
+
+        // --- Tabela Geral ---
+        function renderizarTabela(page = 1) {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            // Filtrar ocorrências que não têm o estado "Inicial"
+            const ocorrenciasFiltradas = ocorrencias.filter(
+                ocorrencia => ocorrencia.estado.toLowerCase() !== "inicial"
+            );
+
+            // Paginação
+            const totalPages = Math.ceil(ocorrenciasFiltradas.length / PAGE_SIZE);
+            const start = (page - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            const pageData = ocorrenciasFiltradas.slice(start, end);
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center">Nenhuma ocorrência encontrada.</td></tr>`;
+            } else {
+                pageData.forEach((ocorrencia, index) => {
+                    // ...o teu código para criar a linha (row.innerHTML = ...)
+                    let tipoHtml = "";
+                    if (ocorrencia.tipo.toLowerCase() === "grafiti") {
+                        tipoHtml = `<img src="Imagens/spray-paint.png" alt="Grafiti" title="Grafiti" width="20"> Grafiti`;
+                    } else if (ocorrencia.tipo.toLowerCase() === "lixo") {
+                        tipoHtml = `<img src="Imagens/bin.png" alt="Lixo" title="Lixo" width="20"> Lixo`;
+                    }
+                    let estadoHtml = "";
+                    if (ocorrencia.estado.toLowerCase() === "concluída") {
+                        estadoHtml = `<img src="Imagens/check.png" alt="Concluída" title="Concluída" width="20"> Concluída`;
+                    } else if (ocorrencia.estado.toLowerCase() === "registada") {
+                        estadoHtml = `<img src="Imagens/notes.png" alt="Registada" title="Registada" width="20"> Registada`;
+                    } else if (ocorrencia.estado.toLowerCase() === "em tratamento") {
+                        estadoHtml = `<img src="Imagens/clock.png" alt="Em Tratamento" title="Em Tratamento" width="20"> Em Tratamento`;
+                    }
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${ocorrencia.id}</td>
+                        <td>${ocorrencia.gravidade}</td>
+                        <td>${ocorrencia.nome}</td>
+                        <td>${tipoHtml}</td>
+                        <td>${ocorrencia.rua}</td>
+                        <td>${estadoHtml}</td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm" onclick="exibirDetalhes(${start + index})" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="ph-bold ph-info icon"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+            renderPaginationGeral(totalPages, page);
+        }
+
+        function renderPaginationGeral(totalPages, currentPage) {
+            const pagination = document.getElementById("paginationGeral");
+            pagination.innerHTML = "";
+            if (totalPages <= 1) return;
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item" + (i === currentPage ? " active" : "");
+                li.innerHTML = `<button class="page-link" onclick="goToPageGeral(${i})">${i}</button>`;
+                pagination.appendChild(li);
+            }
+        }
+        function goToPageGeral(page) {
+            currentPageGeral = page;
+            renderizarTabela(page);
+        }
+
+
+        // Renderizar a tabela ao carregar a página
+        renderizarTabelaUsuario();
+        renderizarTabela();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

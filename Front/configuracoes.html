@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyesEverywhere</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #000000;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    .dark-mode .card,
+    .dark-mode .p-4.bg-white,
+    .dark-mode .form-control {
+      background-color: #1e1e1e !important;
+      color: #fff;
+    }
+
+    .dark-mode .navbar,
+    .dark-mode .footer {
+      background-color: #1b1b1b !important;
+    }
+
+    .navbar-brand img {
+      width: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    .hero-carousel img {
+      height: 500px;
+      object-fit: cover;
+      filter: brightness(70%);
+    }
+
+    .carousel-caption {
+      bottom: 30%;
+      background-color: rgba(111, 111, 111, 0.639); /* preto com 50% opacidade */
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .carousel-caption h1 {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    .carousel-caption p {
+      font-size: 1.2rem;
+    }
+    
+    .card1 img {
+  height: 200px;
+  object-fit: contain;
+  background-color: #f8f9fa; /* opcional, ajuda a ver a imagem toda */
+  border: 1px solid #dee2e6;
+}
+
+.card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+
+    .section-title {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .footer {
+      background: #28a745;
+      color: white;
+      padding: 40px 0;
+      transition: background-color 0.3s;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .counter {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .bg-light-green {
+      background-color: #d4edda;
+    }
+
+    .card:hover,
+    .p-4.bg-white:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card,
+    .p-4.bg-white {
+      transition: all 0.3s ease-in-out;
+    }
+
+    .card1:hover,
+    .p-4.bg-white:hover {
+      transform: scale(1.05);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card1,
+    .p-4.bg-white {
+      transition: all 0.3s ease-in-out;
+    }
+    .suggestion-form input,
+    .suggestion-form textarea {
+      margin-bottom: 10px;
+    }
+
+    #scrollTopBtn {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      padding: 10px 15px;
+      font-size: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    #AjudaToggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1051; /* garantir que está acima do menu */
+    }
+    @media (max-width: 1580px) {
+        #AjudaToggle {
+            top: 70px;
+            left: 10px;
+        }
+    }
+    #darkModeToggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1051; /* garantir que está acima do menu */
+    }
+
+    @media (max-width: 1580px) {
+        #darkModeToggle {
+            top: 70px;
+            right: 10px;
+        }
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 80px;
+      right: 30px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      display: none;
+      z-index: 1050;
+    }
+    .dark-mode ::placeholder {
+      color: #ccc !important;
+      opacity: 1;
+    }
+    .dark-mode .sobre {
+        color: #000000 !important;
+    }
+    .dark-mode .modal-body{
+        color: #000000 !important;
+    }
+    .dark-mode .modal-title{
+        color: #000000 !important;
+    }
+    .dark-mode a.nav-link,
+    .dark-mode .navbar-brand {
+      color: #f0f0f0 !important;
+    }
+
+    .content {
+    margin-left: 100px; /* compensa a sidebar */
+    padding: 40px 60px;
+    min-height: 100vh;
+    background-color: #ffffff;
+    width: calc(100% - 100px); /* ocupa o resto do ecrã */
+    box-sizing: border-box;
+}
+
+
+
+    .sidebar {
+      position: fixed; /* ou absolute, se preferir */
+      z-index: 1100; /* maior que o da navbar (que é 1050 no Bootstrap) */
+      top: 0;
+      left: 0;
+      width: 80px; /* ou o tamanho que quiser */
+      height: 100vh;
+      align-items: center;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      background-color: #f8f9fa; /* ou o que você quiser */
+    }
+
+
+    .sidebar .icon {
+            font-size: 24px;
+            color: #6c757d;
+            margin: 15px 0;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .icon-link {
+            text-decoration: none; /* Remove o sublinhado */
+            color: inherit; /* Mantém a cor herdada */
+        }
+        .sidebar .icon:hover, .sidebar .active {
+            background: #d4edda;
+            color: #28a745;
+        }
+        /* Mini menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .mini-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            width: 150px;
+        }
+
+        .mini-menu a {
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 14px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .mini-menu a:hover {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .user-menu:hover .mini-menu {
+            display: block;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .profile img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+        
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        top: auto;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 1100;
+    }
+
+    .sidebar .icon {
+        margin: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        padding-bottom: 80px; /* Espaço para a barra inferior */
+    }
+
+    .user-menu {
+        position: static;
+    }
+
+    .mini-menu {
+        position: absolute;
+        bottom: 60px;
+        top: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .user-menu:hover .mini-menu {
+        display: block;
+    }
+}
+/* ...existing code... */
+
+  </style>
+
+</head>
+
+<body>
+  <!-- Barra lateral -->
+
+<div class="sidebar">
+  <a href="PaginaPrincipalLogin.html" class="icon-link"><i class="ph-bold ph-house icon"></i></a>
+  <a href="tabela+mapa_teste.html" class="icon-link"><i class="ph-bold ph-map-trifold icon"></i></a>
+  <a href="registoocorrencia.html" class="icon-link"><i class="ph-bold ph-scroll icon"></i></a>
+  <a href="tabela.html" class="icon-link"><i class="ph-bold ph-table icon"></i></a>
+  <div class="icon-link user-menu">
+      <i class="ph-bold ph-user-circle icon active"></i>
+      <div class="mini-menu">
+          <a href="alterar.html">Ver Perfil</a>
+          <a href="configuracoes.html">Configurações</a>
+          <a href="PaginaPrincipal.html">Sair</a>
+      </div>
+  </div>
+</div>
+
+<div class="content" data-aos="fade-up">
+    <div class="profile">
+      <img src="Imagens/3135768.png" alt="User Profile">
+      <div>
+        <h5 class="mb-0" id="displayNome"></h5>
+        <small id="displayEmail"></small>
+      </div>
+    </div>
+  
+    <h2 class="mb-4">Centro de Privacidade</h2>
+  
+    <div class="mb-5 p-4 rounded shadow-sm bg-light" data-aos="fade-up">
+      <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-shield-alt fa-2x text-success me-3"></i>
+        <h4 class="mb-0">Compromisso com a sua Privacidade</h4>
+      </div>
+      <p>Levamos a sua privacidade a sério. Os seus dados são tratados com total transparência e segurança.</p>
+    </div>
+  
+    <div class="mb-5 p-4 rounded shadow-sm bg-white" data-aos="fade-up">
+      <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-database fa-2x text-info me-3"></i>
+        <h4 class="mb-0">Que Dados Recolhemos?</h4>
+      </div>
+      <ul>
+        <li>Dados de Conta – Nome, e-mail e foto de perfil (caso fornecido);</li>
+        <li>Dados de Ocorrências – Descrição, localização, imagens/vídeos anexados;</li>
+        <li>Dados de Navegação – IP, dispositivo e preferências de idioma.</li>
+      </ul>
+    </div>
+  
+    <div class="mb-5 p-4 rounded shadow-sm bg-white" data-aos="fade-up">
+      <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-cogs fa-2x text-warning me-3"></i>
+        <h4 class="mb-0">Como Utilizamos os Seus Dados?</h4>
+      </div>
+      <ul>
+        <li>Gerir e processar ocorrências submetidas;</li>
+        <li>Melhorar a experiência na plataforma;</li>
+        <li>Notificá-lo sobre atualizações;</li>
+        <li>Assegurar normas de segurança e uso responsável;</li>
+        <li>Não partilhamos dados sem consentimento, exceto se exigido por lei.</li>
+      </ul>
+    </div>
+  
+    <div class="mb-5 p-4 rounded shadow-sm bg-white" data-aos="fade-up">
+      <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-lock fa-2x text-primary me-3"></i>
+        <h4 class="mb-0">Como Proteger os Seus Dados?</h4>
+      </div>
+      <ul>
+        <li>Encriptação de ponta a ponta;</li>
+        <li>Backups regulares;</li>
+        <li>Controlo restrito de acessos.</li>
+      </ul>
+    </div>
+  
+    <div class="mb-5 p-4 rounded shadow-sm bg-white" data-aos="fade-up">
+      <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-user-shield fa-2x text-danger me-3"></i>
+        <h4 class="mb-0">Os Seus Direitos</h4>
+      </div>
+      <ul>
+        <li>Aceder e corrigir os dados;</li>
+        <li>Solicitar eliminação;</li>
+        <li>Gerir preferências de notificação;</li>
+        <li>Esclarecer dúvidas sobre privacidade.</li>
+      </ul>
+    </div>
+  
+      <p class="mt-2 text-muted">Estamos sempre a trabalhar para proteger a sua informação.</p>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+    
+      <script>
+        // Recuperar os dados do Session Storage
+        const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+    
+        if (usuario) {
+            // Atualizar os valores exibidos no perfil
+            document.getElementById("displayNome").textContent = usuario.name;
+            document.getElementById("displayEmail").textContent = usuario.email;
+    
+            // Atualizar os valores nos campos do formulário
+            document.getElementById("nome").value = usuario.name;
+            document.getElementById("email").value = usuario.email;
+            document.getElementById("utilizador").value = usuario.email.split("@")[0];
+    
+            // Recuperar os dados do localStorage
+            const codigoPostal = localStorage.getItem("codigoPostal") || "";
+            const telemovel = localStorage.getItem("telemovel") || "";
+    
+            document.getElementById("codigo-postal").value = codigoPostal;
+            document.getElementById("telemovel").value = telemovel;
+        } else {
+            console.log("Nenhum usuário encontrado no Session Storage.");
+        }
+    
+        document.getElementById("profileForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+    
+            // Obter os valores dos campos editáveis
+            const codigoPostal = document.getElementById("codigo-postal").value.trim();
+            const telemovel = document.getElementById("telemovel").value.trim();
+    
+            // Validação simples
+            if (!codigoPostal || !telemovel) {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
+    
+            // Salvar os valores no localStorage
+            localStorage.setItem("codigoPostal", codigoPostal);
+            localStorage.setItem("telemovel", telemovel);
+    
+            alert("Informações atualizadas com sucesso!");
+        });
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+
+</html>
