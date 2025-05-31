@@ -668,6 +668,8 @@
                         tipoHtml = `<img src="Imagens/spray-paint.png" alt="Grafiti" title="Grafiti" width="20"> Grafiti`;
                     } else if (ocorrencia.tipo.toLowerCase() === "lixo") {
                         tipoHtml = `<img src="Imagens/bin.png" alt="Lixo" title="Lixo" width="20"> Lixo`;
+                    } else if (ocorrencia.tipo.toLowerCase() === "vandalismo") {
+                        tipoHtml = `<img src="Imagens/vandalism.png" alt="Vandalismo" title="Vandalismo" width="20"> Vandalismo`;
                     }
                     let estadoHtml = "";
                     if (ocorrencia.estado.toLowerCase() === "finalizada") {
